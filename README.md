@@ -28,23 +28,47 @@ This service is split into two distinct parts:
 - **Business Logic**:
   - Optimized Threshold: `0.5` is NOT assumed. usage of `src/train.py` calculates the profit-maximizing threshold based on Cost per Call vs. Profit per Deposit.
 
+## Tool Stack
+
+- **Core**: Python 3.10+
+- **Data Manipulation**: `pandas`, `numpy`
+- **Machine Learning**: `scikit-learn`, `lightgbm`, `joblib`
+- **API & Serving**: `fastapi`, `uvicorn`, `pydantic`
+- **Testing**: `pytest`, `requests` (for integration checks)
+- **AI/Dev Tools**: Agentic IDE (Cursor-like), LLMs (Gemini/GPT-4) for boilerplate & docs.
+
 ## Usage
 
 ### 1. Setup
 
 ```bash
+# Create a virtual environment (Recommended)
+python -m venv venv
+# Windows:
+.\venv\Scripts\activate
+# Mac/Linux:
+source venv/bin/activate
+
+# Install dependencies
 pip install -r requirements.txt
+
+# IMPORTANT: Ensure dataset is in the correct folder
+# Place 'dataset.csv' into the /data folder
+# Expected path: ./data/dataset.csv
 ```
 
 ### 2. Train the Model (Part A)
 
-Executes the pipeline, splits data (80/20), trains LightGBM, and saves the artifact.
+Executes the pipeline, splits data (80/20), trains LightGBM, and saves the artifact locally.
 
 ```bash
 python src/train.py
 ```
 
-_Outputs: `models/term_deposit_model.joblib`, `models/threshold.txt`_
+_Outputs:_
+
+- `models/term_deposit_model.joblib`: The serialized pipeline.
+- `models/threshold.txt`: The optimal decision threshold.
 
 ### 3. Run the API (Part B)
 
@@ -85,6 +109,7 @@ curl -X POST "http://127.0.0.1:8000/predict" \
 ## Transparency
 
 - **AI Assistants**: This codebase was developed with the assistance of LLMs (Gemini/ChatGPT) for boilerplate generation and docstring formatting, adhering to the "Human in the Loop" engineering standard.
+- **Usage Log**: See `/AI_TRANSCRIPTS/ai_usage_log.md` for a summary of AI sessions.
 - **Data Sources**: Uses the `edm` dataset provided for the exercise.
 
 ## Future Roadmap (Drift)

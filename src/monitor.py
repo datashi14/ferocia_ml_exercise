@@ -1,6 +1,6 @@
 from collections import deque
 import numpy as np
-from utils import calculate_psi
+from .utils import calculate_psi
 
 class DriftMonitor:
     def __init__(self, window_size=1000):

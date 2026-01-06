@@ -32,9 +32,9 @@ def load_and_prep_data(filepath: str):
 
 def train_model():
     # Load Data
-    data_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'dataset.csv')
+    data_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'dataset.csv')
     if not os.path.exists(data_path):
-         # Fallback for running from src dir or root
+         # Fallback for manual placement or different CWD
          data_path = 'dataset.csv'
          
     df = load_and_prep_data(data_path)

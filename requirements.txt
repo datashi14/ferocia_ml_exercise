@@ -3,7 +3,7 @@ numpy
 scikit-learn
 lightgbm
 fastapi
-uvicorn
+uvicorn[standard]
 joblib
 requests
 pytest

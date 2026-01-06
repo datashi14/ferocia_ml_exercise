@@ -5,7 +5,7 @@ import pandas as pd
 import os
 import time
 import logging
-from monitor import check_null_rates, DriftMonitor
+from .monitor import check_null_rates, DriftMonitor
 
 app = FastAPI(title="Ferocia Term Deposit Prediction Service")
 
