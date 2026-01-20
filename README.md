@@ -214,6 +214,7 @@ All major AI interactions are documented in chronological order:
 1. `01_initial_planning_gemini.md` - Model selection & architecture
 2. `02_architecture_refinement_gemini.md` - Ferocia-specific adjustments
 3. `03_production_gaps_analysis_gemini.md` - Critical error identification
+4. `04_roadmap_and_refinement_gemini.md` - Roadmap expansion & governance
 
 ### What I Changed From AI Suggestions
 
@@ -230,8 +231,31 @@ Every AI suggestion was:
 3. Modified to fit 3-hour time constraint
 4. Committed with clear attribution in git messages
 
-## Future Roadmap (Drift)
+## Future Roadmap (Enterprise Scale)
 
-- [x] Null Rate Monitoring
-- [x] PSI (Population Stability)
-- [ ] Automated Retraining Trigger (Airflow)
+To move from this "Tiny Service" to a "Enterprise Platform", we would implement:
+
+### 1. Advanced Modelling & Engineering
+
+- **Feature Engineering**: Add interaction terms (e.g., `Balance ÷ Age`) and cyclical time features (Sin/Cos for Month) to capture seasonality.
+- **Alternative Models**: Benchmark `XGBoost` and `TabNet` against LightGBM. Implement an ensemble if uplift > 2%.
+- **Hyperparameter Tuning**: Integrate `Optuna` for automated Bayesian optimization of model parameters.
+
+### 2. Operational Maturity (MLOps)
+
+- **Model Versioning**: Implement **MLFlow** or **WandB** to track experiments, parameters, and artifacts alongside Git commits.
+- **Error Handling**: Replace basic logging with **Sentry** for real-time error tracking and alerting on API failures.
+- **AI Governance**:
+  - **Prompt Engineering Control**: Version control prompts used for documentation generation alongside code.
+  - **AI Bill of Materials (AI-BOM)**: Automated tracking of which generative tools touched which lines of code.
+
+### 3. Data Quality & Governance
+
+- **Schema Enforcement**: Strict Pydantic models for Input/Output contracts.
+- **Data Contracts**: Implement Great Expectations or Pandera to test data _before_ ingestion.
+- **Drift Actions**: Automated Airflow trigger to retrain model if PSI > 0.25 persists for 24 hours.
+
+### 4. Business Integration
+
+- **Reporting**: Automated connector to Tableau/PowerBI for the "Uplift" dashboard.
+- **Feedback Loop**: Endpoint to receive actual conversion outcomes (`/feedback`) to calculate Realized Precision daily.
