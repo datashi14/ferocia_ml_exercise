@@ -77,13 +77,49 @@ Starts the production server.
 uvicorn src.serve:app --reload
 ```
 
-**Test the endpoint:**
+### 4. Demo: Verify End-to-End
+
+For a quick validation of the service, open a new terminal and run:
+
+**Check Health:**
+
+```bash
+curl http://127.0.0.1:8000/health
+# Returns: {"status": "healthy", "threshold": 0.44}
+```
+
+**Run Prediction (Subscriber Profile):**
 
 ```bash
 curl -X POST "http://127.0.0.1:8000/predict" \
      -H "Content-Type: application/json" \
      -d '{"age": 30, "job": "admin", "marital": "single", "education": "secondary", "default": "no", "balance": 100, "housing": "yes", "loan": "no", "contact": "cellular", "day": 5, "month": "may", "campaign": 1, "pdays": -1, "previous": 0, "poutcome": "unknown"}'
 ```
+
+_Expected Response:_ `{"prediction": "NO_CALL", "probability": 0.04...}` (Low probability due to 'unknown' outcome and low balance).
+
+## Testing Strategy
+
+We employ a "CheckOps" approach to ensure reliability:
+
+### Unit Tests (Logic Verification)
+
+Validates the critical deterministic components.
+
+```bash
+pytest tests/test_pipeline.py
+```
+
+- **What it checks**:
+  - Does `generate_pseudo_id` always return the same Hash for the same input?
+  - Does the 20/80 split correctly buckets IDs based on the hash?
+
+### Integration Tests (API)
+
+Validates the serving infrastructure.
+
+- **Manual**: Using the `curl` commands above.
+- **Automated**: The `src/serve.py` contains data integrity warnings that trigger if you send nulls for critical features.
 
 ## Business KPIs (Framework)
 
