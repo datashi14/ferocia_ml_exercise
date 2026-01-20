@@ -10,7 +10,6 @@ Built with a focus on **CheckOps**, **Reproducibility**, and **Business Impact**
 This service is split into two distinct parts:
 
 1.  **Part A: The Training Pipeline** (`src/train.py`)
-
     - **Deterministic Splitting**: Uses SHA-256 hashing of customer attributes (`utils.py`) to create a stable "Pseudo-ID". This ensures the same customer always ends up in the same split (Control vs. Train) across different runs and environments.
     - **Leakage Protection**: Explicitly drops the `duration` feature (call length), which is a proxy for the target variable and unavailable pre-call.
     - **Model**: A `LightGBM` classifier optimized for the 88:12 class imbalance.
@@ -86,13 +85,32 @@ curl -X POST "http://127.0.0.1:8000/predict" \
      -d '{"age": 30, "job": "admin", "marital": "single", "education": "secondary", "default": "no", "balance": 100, "housing": "yes", "loan": "no", "contact": "cellular", "day": 5, "month": "may", "campaign": 1, "pdays": -1, "previous": 0, "poutcome": "unknown"}'
 ```
 
-## Business KPIs & Simulation Results
+## Business KPIs (Framework)
 
-| Metric                | Value (Simulated) | Business Interpretation                                                          |
-| :-------------------- | :---------------- | :------------------------------------------------------------------------------- |
-| **ROC-AUC**           | ~0.75             | The model is 75% effective at ranking a subscriber higher than a non-subscriber. |
-| **Uplift**            | +25%              | Expected increase in conversion rate compared to random calling (Control Group). |
-| **Optimal Threshold** | Variable          | Adjusted dynamically to maximize net profit (Profit - Call Cost).                |
+This service is designed to measure:
+
+### Model Performance
+
+- **ROC-AUC**: Ranking power (currently printed during training)
+- **Precision-Recall Curve**: Class imbalance handling
+- **F1-Score**: Balance between false positives and false negatives
+
+### Business Impact (Requires A/B Testing)
+
+- **Expected Uplift**: Conversion rate improvement vs. control group
+  - _Measurement_: Compare 80% model-scored group vs. 20% random control
+  - _Timeline_: 30-day window for term deposit confirmations
+- **Cost-Benefit**: ROI calculation based on call cost vs. deposit value
+  - _Future_: Implement in `src/monitor.py` once cost parameters defined
+
+### Production Health
+
+- **PSI (Population Stability Index)**: Drift detection (implemented in `serve.py`)
+- **Null Rate Monitoring**: Data quality checks (implemented)
+- **Prediction Distribution**: Real-time monitoring endpoint
+
+**Note**: Actual uplift and ROI metrics require production deployment with control group.
+Current implementation provides the _framework_ for these measurements.
 
 ## Pros & Cons (Model Selection)
 
@@ -106,11 +124,75 @@ curl -X POST "http://127.0.0.1:8000/predict" \
 - **Pros**: Zero-state reproducibility. No need for a "User Table" in the dev environment.
 - **Cons**: Potential for collision if input features have low entropy (mitigated by including `balance`).
 
-## Transparency
+## Time Allocation (3-Hour Constraint)
 
-- **AI Assistants**: This codebase was developed with the assistance of LLMs (Gemini/ChatGPT) for boilerplate generation and docstring formatting, adhering to the "Human in the Loop" engineering standard.
-- **Usage Log**: See `/AI_TRANSCRIPTS/ai_usage_log.md` for a summary of AI sessions.
-- **Data Sources**: Uses the `edm` dataset provided for the exercise.
+Following Ferocia's 40/60 split recommendation:
+
+### Part A: Training Pipeline (1h 20min)
+
+- 0:00-0:20 → EDA, identify duration leakage and class imbalance
+- 0:20-0:50 → Implement deterministic splitting with hash collision analysis
+- 0:50-1:20 → LightGBM training with imbalance handling + threshold optimization
+
+### Part B: Serving Layer (1h 40min)
+
+- 1:20-2:00 → FastAPI endpoint with Pydantic validation
+- 2:00-2:30 → PSI drift monitoring implementation
+- 2:30-2:50 → Integration testing and documentation
+- 2:50-3:00 → AI transcript organization and README finalization
+
+**Scope Trade-offs Made**:
+
+- ✅ Comprehensive drift monitoring
+- ✅ Business-optimized threshold
+- ⚠️ Limited unit test coverage (1 example test per Ferocia guidance)
+- ⚠️ No hyperparameter tuning (not required per exercise)
+
+## AI Tool Usage & Transparency
+
+### Tools Used
+
+- **Google Gemini**: Strategic planning, architecture design, gap analysis
+- **GitHub Copilot**: Inline code suggestions (disabled for critical logic)
+
+### AI-Assisted Components
+
+See detailed transcripts in `/AI_TRANSCRIPTS/` folder.
+
+#### Strategic Planning (Gemini)
+
+- Initial model selection rationale (LightGBM vs LogReg)
+- Business KPI framework design
+- Production gap analysis (duration leakage, class imbalance)
+
+#### Code Generation (Mix of AI + Manual)
+
+- **AI-Generated**: Boilerplate (FastAPI endpoint structure, pytest templates)
+- **Human-Written**: Core ML logic (deterministic splitting, PSI calculation)
+- **AI-Suggested, Human-Modified**: Drift monitoring implementation
+
+### Process Documentation
+
+All major AI interactions are documented in chronological order:
+
+1. `01_initial_planning_gemini.md` - Model selection & architecture
+2. `02_architecture_refinement_gemini.md` - Ferocia-specific adjustments
+3. `03_production_gaps_analysis_gemini.md` - Critical error identification
+
+### What I Changed From AI Suggestions
+
+- AI suggested SMOTE for imbalance → I used LightGBM's native weighting (simpler)
+- AI proposed separate drift script → I integrated into `serve.py` (cohesive)
+- AI generated generic tests → I wrote domain-specific edge case tests
+
+### Human-in-the-Loop Approach
+
+Every AI suggestion was:
+
+1. Critically evaluated against Ferocia's requirements
+2. Validated against my production experience (Wesfarmers/Tabcorp)
+3. Modified to fit 3-hour time constraint
+4. Committed with clear attribution in git messages
 
 ## Future Roadmap (Drift)
 
