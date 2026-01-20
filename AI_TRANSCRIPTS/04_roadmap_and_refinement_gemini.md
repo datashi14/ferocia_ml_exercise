@@ -6,7 +6,7 @@
 
 ## My Prompt
 
-"expand on the quick start for demo in the readme, expand on the future roadmap with more spefici like feature engineering, alternative model. better error handling, model versioning and ai versioning with ai prompt version control. Data quality and better governance framework. business report interation and data schema. we need better testing documentation"
+"expand on the quick start for demo in the readme, expand on the future roadmap with more specific like feature engineering, alternative model. better error handling, model versioning and ai versioning with ai prompt version control. Data quality and better governance framework. business report interation and data schema. we need better testing documentation"
 
 ## AI Response & Actions
 
